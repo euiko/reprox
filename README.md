@@ -39,7 +39,7 @@ You also need to add the following to your `/etc/hosts` file:
 ```
 
 This is because the example above uses a fake SSL certificate for `www.linkedin.com`.
-So you can visit https://www.linkedin.com without as usual.
+So you can visit https://www.linkedin.com as usual.
 You only need to allow insecure certificates when accessing the site.
 Or you can type `badidea` or `thisisunsafe` in the browser to allow insecure certificates.
 
