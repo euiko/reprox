@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"os/signal"
 	"strings"
 )
 
@@ -130,9 +132,27 @@ func main() {
 		OverrideJSON(200, "response_body.json", "application/vnd.linkedin.normalized+json+2.1; charset=UTF-8"),
 	)
 
+	server := &http.Server{
+		Addr:    listenAddr,
+		Handler: p,
+	}
+
+	// handle sigint
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func() {
+		<-c
+		log.Println("shutting down")
+		server.Shutdown(context.Background())
+	}()
+
 	// Start the HTTP server and register the Proxy instance as the handler
-	err = http.ListenAndServeTLS(listenAddr, "server.crt", "server.key", p)
-	if err != nil {
+	log.Println("starting server on", listenAddr)
+	err = server.ListenAndServeTLS("server.crt", "server.key")
+	if err == http.ErrServerClosed {
+		log.Println("stopped")
+	} else if err != nil {
 		panic(err)
 	}
+
 }
